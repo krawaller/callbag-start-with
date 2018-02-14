@@ -1,0 +1,21 @@
+{
+  "name": "callbag-start-with",
+  "version": "1.0.0",
+  "description": "Callbag operator that seeds a source with an initial data output",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krawaller/callback-start-with.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test.js"
+  },
+  "author": "blog.krawaller.se",
+  "license": "MIT",
+  "keywords": [
+    "callbag"
+  ],
+  "devDependencies": {
+    "tape": "^4.8.0"
+  }
+}
