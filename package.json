@@ -16,6 +16,7 @@
     "callbag"
   ],
   "devDependencies": {
+    "callbag-mock": "^1.0.0",
     "tape": "^4.8.0"
   }
 }
