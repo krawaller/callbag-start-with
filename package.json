@@ -1,6 +1,6 @@
 {
   "name": "callbag-start-with",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Callbag operator that seeds a source with an initial data output",
   "repository": {
     "type": "git",
