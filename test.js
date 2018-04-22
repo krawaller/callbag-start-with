@@ -1,5 +1,7 @@
 const test = require('tape');
-const makeMockCallbag = require('callbag-mock')
+const fromIter = require('callbag-from-iter');
+const forEach = require('callbag-for-each');
+const makeMockCallbag = require('callbag-mock');
 const startWith = require('./index');
 
 test('it seeds the source with initial value, then passes the rest on down', t => {
@@ -44,6 +46,20 @@ test('it passes requests back up', t => {
     ['source', 'talkback', 1, undefined],
     ['source', 'talkback', 2, undefined],
   ], 'source gets requests from sink');
+
+  t.end();
+});
+
+test('it supports iterables', t => {
+  const seededSrc = startWith('a')(fromIter(['b', 'c']));
+
+  const expected = [];
+
+  forEach((v) => {
+    expected.push(v);
+  })(seededSrc);
+
+  t.deepEqual(expected, ['a', 'b', 'c'], 'sink gets data in the correct order');
 
   t.end();
 });

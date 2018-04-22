@@ -1,6 +1,6 @@
 # callbag-start-with
 
-[Callbag](https://github.com/callbag/callbag) operator that seeds a source with an initial data output.
+[Callbag](https://github.com/callbag/callbag) operator that seeds a source with an initial data output. It works for both listenable and pullable sources.
 
 `npm install callbag-start-with`
 

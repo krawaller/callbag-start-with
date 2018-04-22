@@ -5,13 +5,14 @@ const startWith = value => inputSource => (start, outputSink) => {
   inputSource(0, (it,id) => {
     if (it === 0){
       inputTalkback = id;
-      outputSink(0, (ot, od) => {
-        if (ot !== 0) inputTalkback(ot, od);
+      outputSink(0, ot => {
+        if (ot === 2) inputTalkback(ot);
       });
       outputSink(1, value);
     } else {
       outputSink(it, id);
     }
+    if (it !== 2) inputTalkback(1);
   });
 };
 
