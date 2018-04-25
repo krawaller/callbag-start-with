@@ -4,6 +4,14 @@
 
 `npm install callbag-start-with`
 
+Every argument passed in will be emitted to the sink individually, so doing...
+
+```
+startWith(1,2,3)(source)
+```
+
+...will make the source emit `1`, then `2`, then `3` before the "actual" emits.
+
 ## example
 
 ```js

@@ -69,10 +69,10 @@ test('it supports multiple arguments', t => {
   const report = (name,dir,t,d) => t !== 0 && d !== undefined && history.push([name,dir,t,d]);
 
   const source = makeMockCallbag('source', true);
-  const seedWithFoo = startWith('foo', 'bar', 'baz');
+  const seedWithMultipleEmits = startWith('foo', 'bar', 'baz');
   const sink = makeMockCallbag('sink', report);
 
-  seedWithFoo(source)(0, sink);
+  seedWithMultipleEmits(source)(0, sink);
 
   source.emit(1, 'qu');
   source.emit(2, 'error');
