@@ -1,5 +1,5 @@
 
-const startWith = value => inputSource => (start, outputSink) => {
+const startWith = (...xs) => inputSource => (start, outputSink) => {
   if (start !== 0) return;
   let inputTalkback;
   inputSource(0, (it,id) => {
@@ -8,7 +8,7 @@ const startWith = value => inputSource => (start, outputSink) => {
       outputSink(0, ot => {
         if (ot === 2) inputTalkback(ot);
       });
-      outputSink(1, value);
+      xs.forEach(x => outputSink(1, x));
     } else {
       outputSink(it, id);
     }
