@@ -63,3 +63,27 @@ test('it supports iterables', t => {
 
   t.end();
 });
+
+test('it supports multiple arguments', t => {
+  let history = [];
+  const report = (name,dir,t,d) => t !== 0 && d !== undefined && history.push([name,dir,t,d]);
+
+  const source = makeMockCallbag('source', true);
+  const seedWithFoo = startWith('foo', 'bar', 'baz');
+  const sink = makeMockCallbag('sink', report);
+
+  seedWithFoo(source)(0, sink);
+
+  source.emit(1, 'qu');
+  source.emit(2, 'error');
+
+  t.deepEqual(history, [
+    ['sink', 'body', 1, 'foo'],
+    ['sink', 'body', 1, 'bar'],
+    ['sink', 'body', 1, 'baz'],
+    ['sink', 'body', 1, 'qu'],
+    ['sink', 'body', 2, 'error'],
+  ], 'sink gets seed and subsequent data');
+
+  t.end();
+});
