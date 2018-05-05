@@ -5,12 +5,9 @@ const makeMockCallbag = require('callbag-mock');
 const startWith = require('./index');
 
 test('it seeds the source with initial value, then passes the rest on down', t => {
-  let history = [];
-  const report = (name,dir,t,d) => t !== 0 && d !== undefined && history.push([name,dir,t,d]);
-
-  const source = makeMockCallbag('source', true);
+  const source = makeMockCallbag(true);
   const seedWithFoo = startWith('foo');
-  const sink = makeMockCallbag('sink', report);
+  const sink = makeMockCallbag();
 
   seedWithFoo(source)(0, sink);
 
@@ -18,23 +15,22 @@ test('it seeds the source with initial value, then passes the rest on down', t =
   source.emit(1, 'baz');
   source.emit(2, 'error');
 
-  t.deepEqual(history, [
-    ['sink', 'body', 1, 'foo'],
-    ['sink', 'body', 1, 'bar'],
-    ['sink', 'body', 1, 'baz'],
-    ['sink', 'body', 2, 'error'],
-  ], 'sink gets seed and subsequent data');
-
+  t.deepEqual(
+    sink.getReceivedData(),
+    ['foo','bar','baz'],
+    'sink gets seed and subsequent data'
+  );
+  t.ok(!sink.checkConnection(), 'sink gets termination');
   t.end();
 });
 
 test('it passes requests back up', t => {
   let history = [];
-  const report = (name,dir,t,d) => t !== 0 && history.push([name,dir,t,d]);
+  const report = (t,d) => t !== 0 && history.push([t,d]);
 
-  const source = makeMockCallbag('source', report, true);
+  const source = makeMockCallbag(report, true);
   const seedWithFoo = startWith('foo');
-  const sink = makeMockCallbag('sink', report);
+  const sink = makeMockCallbag();
 
   seedWithFoo(source)(0, sink);
 
@@ -42,9 +38,8 @@ test('it passes requests back up', t => {
   sink.emit(2);
 
   t.deepEqual(history, [
-    ['sink', 'body', 1, 'foo'],
-    ['source', 'talkback', 1, undefined],
-    ['source', 'talkback', 2, undefined],
+    [1, undefined],
+    [2, undefined],
   ], 'source gets requests from sink');
 
   t.end();
@@ -65,25 +60,19 @@ test('it supports iterables', t => {
 });
 
 test('it supports multiple arguments', t => {
-  let history = [];
-  const report = (name,dir,t,d) => t !== 0 && d !== undefined && history.push([name,dir,t,d]);
-
-  const source = makeMockCallbag('source', true);
+  const source = makeMockCallbag(true);
   const seedWithMultipleEmits = startWith('foo', 'bar', 'baz');
-  const sink = makeMockCallbag('sink', report);
+  const sink = makeMockCallbag();
 
   seedWithMultipleEmits(source)(0, sink);
 
   source.emit(1, 'qu');
-  source.emit(2, 'error');
 
-  t.deepEqual(history, [
-    ['sink', 'body', 1, 'foo'],
-    ['sink', 'body', 1, 'bar'],
-    ['sink', 'body', 1, 'baz'],
-    ['sink', 'body', 1, 'qu'],
-    ['sink', 'body', 2, 'error'],
-  ], 'sink gets seed and subsequent data');
+  t.deepEqual(
+    sink.getReceivedData(), 
+    ['foo','bar','baz','qu'],
+    'sink gets seed and subsequent data'
+  );
 
   t.end();
 });
