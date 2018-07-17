@@ -46,6 +46,28 @@ test('it passes requests back up', t => {
   t.end();
 });
 
+test('each seeded value generates a forEach data request', t => {
+  let history = [];
+  const report = (t,d) => t !== 0 && history.push([t,d]);
+
+  const source = makeMockCallbag(report, true);
+  const seedWithFoo = startWith('foo', 'bar', 'baz');
+  const seededSrc = seedWithFoo(source);
+
+  const autoPull = () => {};
+  forEach(autoPull)(seededSrc);
+
+  t.deepEqual(history, [
+    [1, undefined], // request sent up on 0
+    [1, undefined],
+    [1, undefined],
+    [1, undefined],
+  ], 'source gets correct number of requests from true sink');
+
+  t.end();
+});
+
+
 test('it supports iterables', t => {
   const seededSrc = startWith('a')(fromIter(['b', 'c']));
 
