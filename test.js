@@ -34,11 +34,12 @@ test('it passes requests back up', t => {
 
   seedWithFoo(source)(0, sink);
 
-  sink.emit(1);
+  // emit request with data (request_id) to make sure that this very request is passed to the source
+  sink.emit(1, 'request_id');
   sink.emit(2);
 
   t.deepEqual(history, [
-    [1, undefined],
+    [1, 'request_id'],
     [2, undefined],
   ], 'source gets requests from sink');
 
@@ -69,7 +70,7 @@ test('it supports multiple arguments', t => {
   source.emit(1, 'qu');
 
   t.deepEqual(
-    sink.getReceivedData(), 
+    sink.getReceivedData(),
     ['foo','bar','baz','qu'],
     'sink gets seed and subsequent data'
   );
