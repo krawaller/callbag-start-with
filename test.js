@@ -106,14 +106,14 @@ test('it queues sync completion', t => {
   const seededSrc = startWith('a', 'b', 'c')(fromIter(['d']));
 
   const makeSink = () => {
-    let talkback
+    let talkback;
     return (t, d) => {
-      if (t === 0) talkback = d
-      else history.push([t,d])
+      if (t === 0) talkback = d;
+      else history.push([t,d]);
 
-      if (t !== 2) talkback(1)
-    }
-  }
+      if (t !== 2) talkback(1);
+    };
+  };
 
   seededSrc(0, makeSink());
 
@@ -152,6 +152,31 @@ test('it doesn\'t request data when receiving uknown type', t => {
     [1, undefined],
     [1, undefined],
   ], 'source gets correct number of requests from sink');
+
+  t.end();
+});
+
+test('it passes sink errors up (& data for unknown types too)', t => {
+  let history = [];
+  const report = (t,d) => t !== 0 && history.push([t,d]);
+
+  const source = makeMockCallbag(report, true);
+  const seedWithFoo = startWith('foo');
+  const sink = makeMockCallbag();
+
+  seedWithFoo(source)(0, sink);
+
+  sink.emit(1);
+  sink.emit('unknown', 'payload');
+  sink.emit(11, 'other_data');
+  sink.emit(2, 'err');
+
+  t.deepEqual(history, [
+    [1, undefined],
+    ['unknown', 'payload'],
+    [11, 'other_data'],
+    [2, 'err'],
+  ], 'source gets type & data from sink');
 
   t.end();
 });
