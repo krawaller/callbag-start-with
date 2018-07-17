@@ -181,3 +181,36 @@ test('it passes sink errors up (& data for unknown types too)', t => {
   t.end();
 });
 
+test('it stops emitting after receiving unsubscription request', t => {
+  let history = [];
+
+  const seededSrc = startWith('a', 'b', 'c')(fromIter(['d']));
+
+  const makeSink = () => {
+    let talkback;
+    let counter = 0;
+    return (t, d) => {
+      if (t === 0) talkback = d;
+      else {
+        history.push([t,d]);
+        counter++;
+      }
+
+      if (counter === 2) {
+        talkback(2);
+        return;
+      }
+
+      if (t !== 2) talkback(1);
+    };
+  };
+
+  seededSrc(0, makeSink());
+
+  t.deepEqual(history, [
+    [1, 'a'],
+    [1, 'b'],
+  ], 'sink stops receiving data after unsubscribing');
+
+  t.end();
+});
