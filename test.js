@@ -77,3 +77,32 @@ test('it supports multiple arguments', t => {
 
   t.end();
 });
+
+test('it queues sync completion', t => {
+  let history = [];
+
+  const seededSrc = startWith('a', 'b', 'c')(fromIter(['d']));
+
+  const makeSink = () => {
+    let talkback
+    return (t, d) => {
+      if (t === 0) talkback = d
+      else history.push([t,d])
+
+      if (t !== 2) talkback(1)
+    }
+  }
+
+  seededSrc(0, makeSink());
+
+  t.deepEqual(history, [
+    [1, 'a'],
+    [1, 'b'],
+    [1, 'c'],
+    [1, 'd'],
+    [2, undefined],
+  ], 'sink gets data in the correct order');
+
+  t.end();
+});
+
