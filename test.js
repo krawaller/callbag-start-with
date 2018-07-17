@@ -106,3 +106,31 @@ test('it queues sync completion', t => {
   t.end();
 });
 
+test('it doesn\'t request data when receiving uknown type', t => {
+  let history = [];
+  const report = (t,d) => t !== 0 && history.push([t,d]);
+
+  const source = makeMockCallbag(report, true);
+  const seedWithFoo = startWith('foo');
+  const seededSource = seedWithFoo(source);
+
+  const autoPull = () => {};
+  forEach(autoPull)(seededSource);
+
+  source.emit(1, 'a');
+  source.emit(1, 'b');
+  source.emit('unknown', 'c');
+  source.emit(1, 'd');
+  source.emit('unknown', 'e');
+
+  t.deepEqual(history, [
+    [1, undefined], // request sent up on 0
+    [1, undefined], // request sent up startWith seed
+    [1, undefined],
+    [1, undefined],
+    [1, undefined],
+  ], 'source gets correct number of requests from sink');
+
+  t.end();
+});
+
