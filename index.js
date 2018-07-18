@@ -8,7 +8,6 @@ const startWith = (...xs) => inputSource => (start, outputSink) => {
       const inputTalkback = id;
 
       outputSink(0, (ot, od) => {
-        if (ot === 0) return;
         if (ot === 2) xs.length = 0;
         inputTalkback(ot, od);
       });
