@@ -2,6 +2,8 @@ const test = require('tape');
 const fromIter = require('callbag-from-iter');
 const forEach = require('callbag-for-each');
 const makeMockCallbag = require('callbag-mock');
+const of = require('callbag-of');
+const take = require('callbag-take');
 const startWith = require('./index');
 
 test('it seeds the source with initial value, then passes the rest on down', t => {
@@ -47,22 +49,23 @@ test('it passes requests back up', t => {
 });
 
 test('each seeded value generates a forEach data request', t => {
-  let history = [];
-  const report = (t,d) => t !== 0 && history.push([t,d]);
-
-  const source = makeMockCallbag(report, true);
+  const source = makeMockCallbag(true);
   const seedWithFoo = startWith('foo', 'bar', 'baz');
   const seededSrc = seedWithFoo(source);
 
   const autoPull = () => {};
   forEach(autoPull)(seededSrc);
 
-  t.deepEqual(history, [
-    [1, undefined], // request sent up on 0
-    [1, undefined],
-    [1, undefined],
-    [1, undefined],
-  ], 'source gets correct number of requests from true sink');
+  t.deepEqual(
+    source.getMessages().slice(1),
+    [
+      [1, undefined], // request sent up on 0
+      [1, undefined],
+      [1, undefined],
+      [1, undefined],
+    ],
+    'source gets correct number of requests from true sink'
+  );
 
   t.end();
 });
@@ -101,38 +104,29 @@ test('it supports multiple arguments', t => {
 });
 
 test('it queues sync completion', t => {
-  let history = [];
+  const seededSrc = startWith('a', 'b', 'c')(of('d'));
 
-  const seededSrc = startWith('a', 'b', 'c')(fromIter(['d']));
+  const sink = makeMockCallbag();
 
-  const makeSink = () => {
-    let talkback;
-    return (t, d) => {
-      if (t === 0) talkback = d;
-      else history.push([t,d]);
+  seededSrc(0, sink);
 
-      if (t !== 2) talkback(1);
-    };
-  };
-
-  seededSrc(0, makeSink());
-
-  t.deepEqual(history, [
-    [1, 'a'],
-    [1, 'b'],
-    [1, 'c'],
-    [1, 'd'],
-    [2, undefined],
-  ], 'sink gets data in the correct order');
+  t.deepEqual(
+    sink.getMessages().slice(1),
+    [
+      [1, 'a'],
+      [1, 'b'],
+      [1, 'c'],
+      [1, 'd'],
+      [2, undefined],
+    ],
+    'sink gets data in the correct order'
+  );
 
   t.end();
 });
 
 test('it doesn\'t request data when receiving uknown type', t => {
-  let history = [];
-  const report = (t,d) => t !== 0 && history.push([t,d]);
-
-  const source = makeMockCallbag(report, true);
+  const source = makeMockCallbag(true);
   const seedWithFoo = startWith('foo');
   const seededSource = seedWithFoo(source);
 
@@ -145,22 +139,23 @@ test('it doesn\'t request data when receiving uknown type', t => {
   source.emit(1, 'd');
   source.emit('unknown', 'e');
 
-  t.deepEqual(history, [
-    [1, undefined], // request sent up on 0
-    [1, undefined], // request sent up startWith seed
-    [1, undefined],
-    [1, undefined],
-    [1, undefined],
-  ], 'source gets correct number of requests from sink');
+  t.deepEqual(
+    source.getMessages().slice(1),
+    [
+      [1, undefined], // request sent up on 0
+      [1, undefined], // request sent up startWith seed
+      [1, undefined],
+      [1, undefined],
+      [1, undefined],
+    ],
+    'source gets correct number of requests from sink'
+  );
 
   t.end();
 });
 
 test('it passes sink errors up (& data for unknown types too)', t => {
-  let history = [];
-  const report = (t,d) => t !== 0 && history.push([t,d]);
-
-  const source = makeMockCallbag(report, true);
+  const source = makeMockCallbag(true);
   const seedWithFoo = startWith('foo');
   const sink = makeMockCallbag();
 
@@ -171,12 +166,16 @@ test('it passes sink errors up (& data for unknown types too)', t => {
   sink.emit(11, 'other_data');
   sink.emit(2, 'err');
 
-  t.deepEqual(history, [
-    [1, undefined],
-    ['unknown', 'payload'],
-    [11, 'other_data'],
-    [2, 'err'],
-  ], 'source gets type & data from sink');
+  t.deepEqual(
+    source.getMessages().slice(1),
+    [
+      [1, undefined],
+      ['unknown', 'payload'],
+      [11, 'other_data'],
+      [2, 'err'],
+    ],
+    'source gets type & data from sink'
+  );
 
   t.end();
 });
@@ -185,32 +184,17 @@ test('it stops emitting after receiving unsubscription request', t => {
   let history = [];
 
   const seededSrc = startWith('a', 'b', 'c')(fromIter(['d']));
+  const limitedSrc = take(2)(seededSrc);
 
-  const makeSink = () => {
-    let talkback;
-    let counter = 0;
-    return (t, d) => {
-      if (t === 0) talkback = d;
-      else {
-        history.push([t,d]);
-        counter++;
-      }
+  const sink = makeMockCallbag();
 
-      if (counter === 2) {
-        talkback(2);
-        return;
-      }
+  limitedSrc(0, sink);
 
-      if (t !== 2) talkback(1);
-    };
-  };
-
-  seededSrc(0, makeSink());
-
-  t.deepEqual(history, [
-    [1, 'a'],
-    [1, 'b'],
-  ], 'sink stops receiving data after unsubscribing');
+  t.deepEqual(
+    sink.getReceivedData(),
+    ['a', 'b'],
+    'sink stops receiving data after unsubscribing'
+  );
 
   t.end();
 });

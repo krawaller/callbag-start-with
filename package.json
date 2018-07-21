@@ -18,7 +18,9 @@
   "devDependencies": {
     "callbag-for-each": "~1.0.1",
     "callbag-from-iter": "~1.0.0",
-    "callbag-mock": "^2.1.0",
+    "callbag-mock": "^2.2.0",
+    "callbag-of": "^1.0.1",
+    "callbag-take": "^1.0.0",
     "tape": "^4.8.0"
   }
 }
