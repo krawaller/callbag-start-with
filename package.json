@@ -6,9 +6,13 @@
     "type": "git",
     "url": "git+https://github.com/krawaller/callback-start-with.git"
   },
-  "main": "index.js",
+  "main": "index.cjs.js",
+  "module": "index.js",
   "scripts": {
-    "test": "tape test.js"
+    "build": "rollup $npm_package_module -o $npm_package_main --f cjs",
+    "pretest": "npm run build",
+    "test": "tape test.js",
+    "prepare": "npm test"
   },
   "author": "blog.krawaller.se",
   "license": "MIT",
@@ -22,6 +26,7 @@
     "callbag-of": "^1.0.1",
     "callbag-pipe": "^1.1.1",
     "callbag-take": "^1.0.0",
+    "rollup": "^0.63.4",
     "tape": "^4.8.0"
   }
 }
