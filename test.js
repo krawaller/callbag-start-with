@@ -51,13 +51,13 @@ test('it passes requests back up', t => {
 });
 
 test('it supports iterables', t => {
-  const seededSrc = startWith('a')(fromIter(['b', 'c']));
-
   const expected = [];
 
-  forEach((v) => {
-    expected.push(v);
-  })(seededSrc);
+  pipe(
+    fromIter(['b', 'c']),
+    startWith('a'),
+    forEach((v) => expected.push(v))
+  );
 
   t.deepEqual(expected, ['a', 'b', 'c'], 'sink gets data in the correct order');
 
