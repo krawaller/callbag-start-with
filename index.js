@@ -44,4 +44,4 @@ const startWith = (...xs) => inputSource => (start, outputSink) => {
   });
 };
 
-module.exports = startWith;
+export default startWith;

@@ -5,7 +5,7 @@ const makeMockCallbag = require('callbag-mock');
 const of = require('callbag-of');
 const pipe = require('callbag-pipe');
 const take = require('callbag-take');
-const startWith = require('./index');
+const startWith = require('.');
 
 test('it seeds the source with initial value, then passes the rest on down', t => {
   const source = makeMockCallbag(true);
