@@ -3,6 +3,7 @@ const fromIter = require('callbag-from-iter');
 const forEach = require('callbag-for-each');
 const makeMockCallbag = require('callbag-mock');
 const of = require('callbag-of');
+const pipe = require('callbag-pipe');
 const take = require('callbag-take');
 const startWith = require('./index');
 
@@ -181,14 +182,14 @@ test('it passes sink errors up (& data for unknown types too)', t => {
 });
 
 test('it stops emitting after receiving unsubscription request', t => {
-  let history = [];
-
-  const seededSrc = startWith('a', 'b', 'c')(fromIter(['d']));
-  const limitedSrc = take(2)(seededSrc);
-
   const sink = makeMockCallbag();
 
-  limitedSrc(0, sink);
+  pipe(
+    fromIter(['d']),
+    startWith('a', 'b', 'c'),
+    take(2),
+    source => source(0, sink)
+  );
 
   t.deepEqual(
     sink.getReceivedData(),
