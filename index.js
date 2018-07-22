@@ -1,30 +1,45 @@
 
 const startWith = (...xs) => inputSource => (start, outputSink) => {
   if (start !== 0) return;
-  xs = xs.map(v => [1, v]);
-  let inited = false;
+  let disposed = false;
+  let inputTalkback;
+  let trackPull = false;
+  let lastPull;
+
+  outputSink(0, (ot, od) => {
+    if (trackPull && ot === 1) {
+      lastPull = [1, od];
+    }
+
+    if (ot === 2) {
+      disposed = true;
+      xs.length = 0;
+    }
+
+    if (!inputTalkback) return;
+    inputTalkback(ot, od);
+  });
+
+  while (xs.length !== 0) {
+    if (xs.length === 1) {
+      trackPull = true;
+    }
+    outputSink(1, xs.shift());
+  }
+
+  if (disposed) return;
+
   inputSource(0, (it, id) => {
-    if (it === 0){
-      const inputTalkback = id;
+    if (it === 0) {
+      inputTalkback = id;
+      trackPull = false;
 
-      outputSink(0, (ot, od) => {
-        if (ot === 2) xs.length = 0;
-        inputTalkback(ot, od);
-      });
-
-      while (xs.length !== 0) {
-        outputSink(...xs.shift());
+      if (lastPull) {
+        inputTalkback(...lastPull);
+        lastPull = null;
       }
-
-      inited = true;
-      return
+      return;
     }
-
-    if (!inited) {
-      xs.push([it, id]);
-      return
-    }
-
     outputSink(it, id);
   });
 };

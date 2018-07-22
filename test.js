@@ -49,29 +49,6 @@ test('it passes requests back up', t => {
   t.end();
 });
 
-test('each seeded value generates a forEach data request', t => {
-  const source = makeMockCallbag(true);
-  const seedWithFoo = startWith('foo', 'bar', 'baz');
-  const seededSrc = seedWithFoo(source);
-
-  const autoPull = () => {};
-  forEach(autoPull)(seededSrc);
-
-  t.deepEqual(
-    source.getMessages().slice(1),
-    [
-      [1, undefined], // request sent up on 0
-      [1, undefined],
-      [1, undefined],
-      [1, undefined],
-    ],
-    'source gets correct number of requests from true sink'
-  );
-
-  t.end();
-});
-
-
 test('it supports iterables', t => {
   const seededSrc = startWith('a')(fromIter(['b', 'c']));
 
@@ -144,7 +121,6 @@ test('it doesn\'t request data when receiving uknown type', t => {
     source.getMessages().slice(1),
     [
       [1, undefined], // request sent up on 0
-      [1, undefined], // request sent up startWith seed
       [1, undefined],
       [1, undefined],
       [1, undefined],
