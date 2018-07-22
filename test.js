@@ -104,12 +104,15 @@ test('it queues sync completion', t => {
 });
 
 test('it doesn\'t request data when receiving uknown type', t => {
-  const source = makeMockCallbag(true);
-  const seedWithFoo = startWith('foo');
-  const seededSource = seedWithFoo(source);
-
   const autoPull = () => {};
-  forEach(autoPull)(seededSource);
+
+  const source = makeMockCallbag(true);
+
+  pipe(
+    source,
+    startWith('foo'),
+    forEach(autoPull)
+  )
 
   source.emit(1, 'a');
   source.emit(1, 'b');
