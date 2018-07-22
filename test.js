@@ -28,10 +28,7 @@ test('it seeds the source with initial value, then passes the rest on down', t =
 });
 
 test('it passes requests back up', t => {
-  let history = [];
-  const report = (t,d) => t !== 0 && history.push([t,d]);
-
-  const source = makeMockCallbag(report, true);
+  const source = makeMockCallbag(true);
   const seedWithFoo = startWith('foo');
   const sink = makeMockCallbag();
 
@@ -41,10 +38,14 @@ test('it passes requests back up', t => {
   sink.emit(1, 'request_id');
   sink.emit(2);
 
-  t.deepEqual(history, [
-    [1, 'request_id'],
-    [2, undefined],
-  ], 'source gets requests from sink');
+  t.deepEqual(
+    source.getMessages().slice(1),
+    [
+      [1, 'request_id'],
+      [2, undefined],
+    ],
+    'source gets requests from sink'
+  );
 
   t.end();
 });
