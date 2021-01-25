@@ -7,6 +7,7 @@
     "url": "git+https://github.com/krawaller/callback-start-with.git"
   },
   "main": "index.cjs.js",
+  "types": "index.d.ts",
   "module": "index.js",
   "scripts": {
     "build": "rollup $npm_package_module -o $npm_package_main --f cjs",
@@ -20,6 +21,7 @@
     "callbag"
   ],
   "devDependencies": {
+    "callbag": "^1.2.0",
     "callbag-for-each": "~1.0.1",
     "callbag-from-iter": "~1.0.0",
     "callbag-mock": "^2.2.0",
